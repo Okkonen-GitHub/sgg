@@ -1,0 +1,11 @@
+# python venv stuff
+lib
+bin
+lib64
+include
+pyvenv.cfg
+__pycache__
+
+# development
+.nvimlog
+# *.sgg
