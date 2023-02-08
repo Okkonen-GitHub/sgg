@@ -16,5 +16,5 @@ event2: Do you step into the shop? (YES/Y,NO/N) -> (event4, event3)
 # Prior to any event there can be a text info with a pause (user can be made hit enter to continue)
 
 @info1: Farewell then, may our paths cross another time
-event3: \quit
+event3: \quit (kyl/yes,ei/nope/noup) -> (a, b )
 

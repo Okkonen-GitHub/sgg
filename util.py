@@ -27,3 +27,5 @@ def r_until(s: str, b: str):
     return s[:s.find(b)][len(b):]
 def r_from(s: str, b: str):
     return s[s.find(b):][len(b):]
+def low_opts(l: list[str]) -> list[str]:
+    return list(map(lambda x: list(map(lambda y: y.lower(), x)), l))

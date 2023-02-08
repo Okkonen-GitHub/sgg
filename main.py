@@ -1,7 +1,7 @@
 import sys
 
-from util import is_comment, r_from, r_until, replace_variables, try_split_in_two
-from conf import parse_config
+from util import is_comment, low_opts, r_from, r_until, replace_variables, try_split_in_two
+from conf import Config, parse_config
 
 def gen_var(v: str, q: str, n: str) -> str:
     return f'{v}=input("{q}")\n{n}()\n'
@@ -14,8 +14,53 @@ def parse_opts(opts: str):
     opts = opts.split(',')
     for opt in opts:
         if '/' in opt:
-            popts.append(opt.split('/'))
+            popts.append(list(map(lambda x: x.strip(), opt.split('/'))))
+        else:
+            popts.append(opt)
     return popts
+
+def gen_evnt(n: str, p: str, opts: list[str], nxt: list[str], config: Config) -> str:
+    print(opts)
+    print(nxt)
+    if not len(opts) == len(nxt):
+        print("The amount of options does not match the amount of follow up events")
+        print(f"Error occured at {n}")
+        exit(1)
+    nxt = str(nxt).replace("'", "")
+    if config.case_sensitive:
+        return f'''def {n}():
+    o={opts}
+    n=[{nxt}]
+    a=""
+    c = []
+    for e in o:
+        c+=e
+    while not a in c:
+        a=input("{p}")
+    for i in range(len(o)):
+        for d in o:
+            if a==d[i]:
+                n[i]()
+'''
+
+    else:
+        opts=low_opts(opts)
+        return f'''def {n}():
+    o={opts}
+    n={nxt}
+    a=""
+    c = []
+    for e in o:
+        c+=e
+    while not a in c:
+        a=input("{p}").lower()
+    for i in range(len(o)):
+        for d in o:
+            if a==d[i]:
+                n[i]()
+
+'''
+
 
 def parse(lines):
     gc = ""
@@ -45,10 +90,13 @@ def parse(lines):
                 gc+=gen_sp(val.strip())
             else:
                 name, evnt = try_split_in_two(line, ':')
-                prompt = r_until(line, '(').strip()
-                opts = r_from(line, '(').strip().split('->')[0]
+                evnt = evnt[:evnt.find('->')].strip()
+                opts = r_from(line, '(').strip().split('->')[0].strip()[:-1]
                 opts = parse_opts(opts)
-                print(opts)
+                next = list(map(lambda x: x.strip(), r_from(r_from(line, '->').strip(), '(').replace(')', '').split(',')))
+                print(gen_evnt(name,evnt,opts,next, config))
+                
+
                 
                        
         # else: print("skip")
