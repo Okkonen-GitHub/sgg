@@ -3,17 +3,18 @@ import sys
 from util import is_comment, low_opts, r_from, r_until, replace_variables, try_split_in_two
 from conf import Config, parse_config
 
-def gen_var(v: str, q: str, n: str, vars: set) -> str:
+def gen_var(v: str, q: str, n: str, prev, vars: set) -> str:
     i = f"{vars}".replace("'", "").replace('{','').replace('}','') if len(vars) != 0 else ''
-    return f'''def get_{v}():
-    {v}=input("{q} ")
-    {n}({i})\n
+    return f'''def {v}({i}):
+    {prev}({i})
+    {v}=input(f"{q} ")
+    {n}({v})\n
 '''
 
 def gen_sp(name: str, v: str, vars: set) -> str:
     i = f"{vars}".replace("'", "").replace('{','').replace('}','') if len(vars) != 0 else ''
     return f'''def {name}({i}):
-    print("{v}")\n
+    print(f"{v}")\n
 '''
 
 def parse_opts(opts: str) -> list[list[str]]:
@@ -37,7 +38,7 @@ def gen_evnt(n: str, p: str, prev: str, opts: list[list[str]], nxt: list[str], c
     nxt = str(nxt).replace("'", "")
     if config.case_sensitive:
         return f'''def {n}({i}):
-    {prev}
+    {prev}({i})
     o={opts}
     n=[{nxt}]
     a=""
@@ -45,7 +46,7 @@ def gen_evnt(n: str, p: str, prev: str, opts: list[list[str]], nxt: list[str], c
     for e in o:
         c+=e
     while not a in c:
-        a=input("{p} ")
+        a=input(f"{p} ")
     for i in range(len(o)):
         for d in o[i]:
             if a==d:
@@ -55,7 +56,7 @@ def gen_evnt(n: str, p: str, prev: str, opts: list[list[str]], nxt: list[str], c
     else:
         opts=low_opts(opts)
         return f'''def {n}({i}):
-    {prev}
+    {prev}({i})
     o={opts}
     n={nxt}
     a=""
@@ -63,7 +64,7 @@ def gen_evnt(n: str, p: str, prev: str, opts: list[list[str]], nxt: list[str], c
     for e in o:
         c+=e
     while not a in c:
-        a=input("{p} ").lower()
+        a=input(f"{p} ").lower()
     for i in range(len(o)):
         for d in o[i]:
             if a==d:
@@ -93,12 +94,19 @@ def parse(lines: list[str]):
             nline, replaced = replace_variables(variable_set, line)
             # if variable is declared
             if nline.startswith('$'):
+                info = lines[lines.index(line)-1]
+                if info.startswith('@'):
+                    info, _ = parse([info])
+                    iname = info.split(' ')[1][:-4]
+                else:
+                    iname = '#'
+
                 var, val = try_split_in_two(nline, ':')
                 var = var[1:] # remove the prefix ($)
                 prompt = r_until(val, '-').strip()
                 next = r_from(val, '> ').strip()
+                gc+=gen_var(var, prompt, next, iname, variable_set)
                 variable_set.add(var)
-                gc+=gen_var(var, prompt, next, variable_set)
             # if a text prompt
             elif nline.startswith('@'):
                 var, val = try_split_in_two(nline, ':')
@@ -116,9 +124,9 @@ def parse(lines: list[str]):
                 info = lines[lines.index(line)-1]
                 if info.startswith('@'):
                     info, _ = parse([info])
-                    iname = info.split(' ')[1][:-2]
+                    iname = info.split(' ')[1][:-4]
                 else:
-                    iname = ''
+                    iname = '#'
 
                 name, evnt = try_split_in_two(nline, ':')
                 evnt = evnt[:evnt.find('->')].strip()
@@ -129,10 +137,6 @@ def parse(lines: list[str]):
                 
 
                 
-                       
-        # else: print("skip")
-
-
     return gc+sl, variable_set
 
 

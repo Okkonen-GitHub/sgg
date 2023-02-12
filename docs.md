@@ -19,9 +19,10 @@ event1: Hello $name, are you looking for something? (yes/y,no/n) -> (event2, eve
 @info: Well maybe I have what you are looking for, step in
 event2: Do you step into the shop? (yes/y,no/n) -> (event4, event3)
 
-
+# A way to make the game end is to not have anything as a next event
+# the game ending event should a variable declaration for now..
 @info1: Farewell then, may our paths cross another time
-event3: \quit
+$event3: Game over...
 
 event4: ...
 ```
