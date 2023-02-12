@@ -8,7 +8,8 @@ indentation = 4
 case_sensitive = false
 
 # variables start with $
-$name: What is your name traveler? -> event1
+# the first event is marked with !
+!$name: What is your name traveler? -> event1
 
 # events are created like this:
 # each following event can have multiple triggers
