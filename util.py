@@ -1,12 +1,11 @@
 def is_comment(line: str) -> bool:
     return line.strip().startswith('#')
 
-def replace_variables(variable_set: set, line: str):
-    og = line
+def replace_variables(variable_set: set, line: str) -> str:
     for var in variable_set:
         line = line.replace(f'${var}', "{{}}".replace("{}", var))
         # print("replaced", line)
-    return line, og!=line
+    return line
 
 def try_split_in_two(l, s):
     # print(l)

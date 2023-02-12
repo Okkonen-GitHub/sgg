@@ -27,7 +27,7 @@ def parse_opts(opts: str) -> list[list[str]]:
             popts.append(opt)
     return popts
 
-def gen_evnt(n: str, p: str, prev: str, opts: list[list[str]], nxt: list[str], config: Config, replaced: bool, vars: set) -> str:
+def gen_evnt(n: str, p: str, prev: str, opts: list[list[str]], nxt: list[str], config: Config, vars: set) -> str:
     # print(opts)
     # print(nxt)
     i = f"{vars}".replace("'", "").replace('{','').replace('}','') if len(vars) != 0 else ''
@@ -91,7 +91,7 @@ def parse(lines: list[str]):
     for line in lines:
         if not is_comment(line):
 
-            nline, replaced = replace_variables(variable_set, line)
+            nline = replace_variables(variable_set, line)
             # if variable is declared
             if nline.startswith('$'):
                 info = lines[lines.index(line)-1]
@@ -133,7 +133,7 @@ def parse(lines: list[str]):
                 opts = r_from(nline, '(').strip().split('->')[0].strip()[:-1]
                 opts = parse_opts(opts)
                 next = list(map(lambda x: x.strip(), r_from(r_from(nline, '->').strip(), '(').replace(')', '').split(',')))
-                gc+=gen_evnt(name,evnt, iname,opts,next, config, replaced, variable_set)
+                gc+=gen_evnt(name,evnt, iname,opts,next, config, variable_set)
                 
 
                 
